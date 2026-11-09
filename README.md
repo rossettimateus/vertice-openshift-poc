@@ -1,5 +1,7 @@
 # Vértice Logística — PoC com OpenShift
 
+[![Testes das aplicações](https://github.com/rossettimateus/vertice-openshift-poc/actions/workflows/tests.yml/badge.svg)](https://github.com/rossettimateus/vertice-openshift-poc/actions/workflows/tests.yml)
+
 Como organizar uma plataforma para dois times compartilharem um cluster sem perder o controle de acessos, recursos e comunicação?
 
 Recebi um cenário de PoC para a Vértice Logística, uma empresa fictícia com dois sistemas: Operações e Rastreamento. A partir dos requisitos apresentados, desenhei o ambiente, configurei os controles administrativos e testei o comportamento das aplicações no cluster.
@@ -84,7 +86,7 @@ Ajustei o request para 75 MiB e o limite para 110 MiB. Repetimos as consultas: d
 
 Esse episódio mudou a forma como eu olharia uma falha de comunicação: além da rede, preciso observar o processo que deveria responder, os reinícios e o estado anterior do container.
 
-[O troubleshooting, passo a passo](docs/INCIDENTE-MEMORIA-DEV.md).
+[O troubleshooting, passo a passo](docs/INCIDENTE-MEMORIA-DEV.md) · [Comandos de diagnóstico](docs/DIAGNOSTICO.md).
 
 ## O que está no repositório
 
