@@ -1,0 +1,331 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "postgresql-data",
+        "namespace": "project-rastreamento",
+        "labels": {
+          "app": "postgresql-data",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "postgresql",
+        "namespace": "project-rastreamento",
+        "labels": {
+          "app": "postgresql",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "postgresql"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "postgresql"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "postgresql",
+                "image": "quay.io/sclorg/postgresql-16-c9s:latest",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "POSTGRESQL_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "rastreamento-db",
+                        "key": "DB_USER"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "rastreamento-db",
+                        "key": "DB_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POSTGRESQL_DATABASE",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "rastreamento-db",
+                        "key": "DB_NAME"
+                      }
+                    }
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "data",
+                    "mountPath": "/var/lib/pgsql/data"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "postgresql-data"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "postgresql",
+        "namespace": "project-rastreamento",
+        "labels": {
+          "app": "postgresql",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "selector": {
+          "app": "postgresql"
+        },
+        "ports": [
+          {
+            "name": "tcp",
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "rastreamento",
+        "namespace": "project-rastreamento",
+        "labels": {
+          "app": "rastreamento",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "selector": {
+          "app": "rastreamento"
+        },
+        "ports": [
+          {
+            "name": "tcp",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "operacoes",
+        "namespace": "project-developer",
+        "labels": {
+          "app": "operacoes",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "selector": {
+          "app": "operacoes"
+        },
+        "ports": [
+          {
+            "name": "tcp",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "rastreamento",
+        "namespace": "project-rastreamento",
+        "labels": {
+          "app": "rastreamento",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "rastreamento"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "rastreamento"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "rastreamento",
+                "image": "image-registry.openshift-image-registry.svc:5000/project-rastreamento/rastreamento@sha256:074144dfc1bb8846a074028e3ea2ee4f84434240afba42889b2bd4231c4baf22",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "APP_ENV",
+                    "value": "dev"
+                  }
+                ],
+                "envFrom": [
+                  {
+                    "secretRef": {
+                      "name": "rastreamento-db"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "route.openshift.io/v1",
+      "kind": "Route",
+      "metadata": {
+        "name": "rastreamento",
+        "namespace": "project-rastreamento"
+      },
+      "spec": {
+        "to": {
+          "kind": "Service",
+          "name": "rastreamento"
+        },
+        "port": {
+          "targetPort": "tcp"
+        },
+        "tls": {
+          "termination": "edge",
+          "insecureEdgeTerminationPolicy": "Redirect"
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "operacoes",
+        "namespace": "project-developer",
+        "labels": {
+          "app": "operacoes",
+          "part-of": "vertice"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "selector": {
+          "matchLabels": {
+            "app": "operacoes"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "operacoes"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "operacoes",
+                "image": "image-registry.openshift-image-registry.svc:5000/project-developer/operacoes@sha256:f415a376930a3f3c21a66c45ed37960b6127969543448e864d2698ca0932a2cc",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "APP_ENV",
+                    "value": "dev"
+                  },
+                  {
+                    "name": "TRACKING_API_URL",
+                    "value": "http://rastreamento.project-rastreamento.svc:8080"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "route.openshift.io/v1",
+      "kind": "Route",
+      "metadata": {
+        "name": "operacoes",
+        "namespace": "project-developer"
+      },
+      "spec": {
+        "to": {
+          "kind": "Service",
+          "name": "operacoes"
+        },
+        "port": {
+          "targetPort": "tcp"
+        },
+        "tls": {
+          "termination": "edge",
+          "insecureEdgeTerminationPolicy": "Redirect"
+        }
+      }
+    }
+  ]
+}
