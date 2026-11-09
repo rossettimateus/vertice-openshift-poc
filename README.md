@@ -1,14 +1,34 @@
-# Vértice Logística — PoC de plataforma com OpenShift
+# Vértice Logística — PoC com OpenShift
 
-Uma prova de conceito para dar autonomia a dois times de desenvolvimento, controlar acessos e demonstrar operação de aplicações em OpenShift. A Vértice é um cliente fictício; as aplicações e os dados são demonstrativos.
+Como organizar uma plataforma para dois times compartilharem um cluster sem perder o controle de acessos, recursos e comunicação?
 
-Meu foco neste projeto foi a administração e a arquitetura da plataforma: transformar requisitos do cliente em configurações, testar o comportamento e investigar falhas. As aplicações modelo e parte da validação foram preparadas com apoio do Codex.
+Usei essa pergunta como ponto de partida para uma PoC de OpenShift. Criei o cenário da Vértice Logística, uma empresa fictícia com dois sistemas: Operações e Rastreamento. Meu trabalho foi desenhar o ambiente, configurar os controles administrativos e testar se a solução atendia às necessidades do cliente.
 
-## O problema do cliente
+As aplicações são modelos para os testes. O foco do projeto está na plataforma.
 
-Dois times, Operações e Rastreamento, compartilhavam infraestrutura e dependiam de intervenções manuais para publicar aplicações. O cliente precisava de permissões delimitadas, separação entre desenvolvimento e homologação, persistência dos dados e procedimentos de recuperação e troca de credenciais.
+## O que o cliente precisava
 
-## Arquitetura implementada
+Os desenvolvedores dependiam da infraestrutura para publicar aplicações e investigar problemas. Havia acessos excessivos, configurações manuais e preocupação com uma aplicação consumir recursos a ponto de afetar as demais.
+
+A proposta precisava contemplar:
+
+- Acessos organizados por time e função, com suporte consultando diagnóstico sem alterar as aplicações.
+- Desenvolvimento e homologação com dados e credenciais separados.
+- Comunicação entre Operações e Rastreamento no mesmo ambiente.
+- Bloqueio de Operações dev para Rastreamento homolog.
+- Controle de memória e recuperação após falhas.
+- Troca de credenciais e preservação de dados quando o pod do banco fosse substituído.
+- Um procedimento para receber novos usuários e times.
+
+## Como organizei a PoC
+
+Separei os aplicativos de desenvolvimento em dois projetos. Para homologação, usei um terceiro projeto com uma cópia dos dois aplicativos e um banco próprio.
+
+| Projeto | Componentes |
+|---|---|
+| `project-developer` | Operações dev |
+| `project-rastreamento` | Rastreamento dev, PostgreSQL e PVC |
+| `project-homologacao` | Operações homolog, Rastreamento homolog, PostgreSQL e PVC próprios |
 
 ```mermaid
 flowchart LR
@@ -25,56 +45,60 @@ flowchart LR
   end
   subgraph HOM[project-homologacao]
     OH[Operações homolog] --> RH[Rastreamento homolog]
-    RH --> DH[(PostgreSQL + PVC exclusivo)]
+    RH --> DH[(PostgreSQL + PVC próprio)]
   end
-  O -. HTTP bloqueado pela AdminNetworkPolicy .-> RH
+  O -. HTTP bloqueado .-> RH
 ```
 
-Operações consulta e registra ocorrências pela API de Rastreamento. Apenas Rastreamento acessa o banco. Cada ambiente tem credenciais e armazenamento próprios. Homologação usa um namespace compartilhado pelos dois aplicativos: isso demonstra separação de ambientes, mas não reproduz integralmente a separação por time existente em desenvolvimento.
+Operações envia as consultas e os registros de ocorrências para a API de Rastreamento. A API faz o acesso ao PostgreSQL; Operações não recebe as credenciais do banco.
 
-## O que demonstrei
+Usei o provedor HTPasswd existente para os usuários e grupos para organizar as permissões. Para a comunicação entre ambientes, configurei uma AdminNetworkPolicy selecionando a origem e o destino pelos namespaces e labels dos pods.
 
-| Cenário | Resultado e evidência |
-|---|---|
-| Acessos por grupos e RBAC | Consulta de suporte sem alteração; leitura cruzada específica entre times. Ver escopo abaixo. |
-| Contenção de memória | Container com limite de 70 MiB encerrado por OOM; recuperação automática observada. |
-| Comunicação necessária | Operações → Rastreamento retornou HTTP 200 dentro de dev e de homolog. |
-| Bloqueio entre ambientes | Operações dev → Rastreamento homolog terminou em timeout, coerente com a regra inspecionada. |
-| Troca de credenciais | Senha nova autenticou, antiga foi rejeitada e homologação continuou acessível. Executado em dev. |
-| Persistência | Ocorrência permaneceu após substituição do pod PostgreSQL, validada manualmente. |
-| Publicação defeituosa | Apps incluem versões com falha funcional e de readiness; roteiro disponível. |
-| Entrada de novo time | Procedimento de onboarding documentado para repetição. |
+Em homologação, os aplicativos compartilham um namespace. Para ampliar essa estrutura, eu separaria os ambientes também por time e revisaria a matriz de permissões antes de receber novas equipes.
 
-[Registro de testes](docs/PROGRESSO-POC.md) · [Roteiro de validação](docs/VALIDACAO.md) · [Onboarding](docs/ONBOARDING.md)
+## Como testei
 
-Os testes de HTTP foram verificações funcionais curtas, não testes de carga. A execução integral de todos os requisitos foi confirmada pelo autor; o registro distingue as evidências coletadas no cluster dos testes relatados manualmente. Não há evidência detalhada de rollback ou onboarding completo anexada a esta versão.
+| Necessidade | Teste realizado | Resultado |
+|---|---|---|
+| Acesso de suporte | Consultar pods, eventos e logs; verificar permissões de alteração e leitura de Secrets | Leitura de diagnóstico permitida; ações verificadas de alteração e leitura de Secrets negadas |
+| Comunicação em desenvolvimento | Consultar Rastreamento a partir de Operações dev | HTTP 200 em cinco consultas consecutivas |
+| Comunicação em homologação | Consultar Rastreamento a partir de Operações homolog | HTTP 200 em três consultas consecutivas |
+| Bloqueio entre ambientes | Consultar Rastreamento homolog a partir de Operações dev | Timeout, com a regra de bloqueio aplicada |
+| Limite de memória | Tentar alocar memória acima do limite do container | OOMKilled e reinício do container |
+| Troca de senha do banco | Atualizar a credencial e testar a senha nova e a antiga | Nova autenticou; antiga foi rejeitada; homologação continuou acessível |
+| Persistência | Registrar uma ocorrência e substituir o pod PostgreSQL | A ocorrência permaneceu disponível |
 
-## A descoberta mais útil: parecia rede, era memória
+A troca de credenciais foi feita em desenvolvimento. Na parte de recuperação de versão, as aplicações incluem imagens com falhas controladas de readiness e de negócio. Deixei o roteiro de execução e o procedimento de entrada de um novo time na documentação.
 
-Durante a configuração de isolamento, Operações dev também deixou de consultar Rastreamento dev. O erro HTTP sugeria uma falha de comunicação. Ao reproduzir o acesso e correlacionar os horários dos reinícios, identifiquei, com apoio da investigação no cluster, que as três réplicas estavam sofrendo OOM.
+[Testes e resultados](docs/PROGRESSO-POC.md) · [Roteiro do laboratório](docs/VALIDACAO.md) · [Entrada de novos times](docs/ONBOARDING.md)
 
-O limite de 70 MiB, usado para demonstrar contenção, não sustentava o funcionamento observado. Ajustei o request para 75 MiB e o limite para 110 MiB. Na verificação posterior, cinco consultas retornaram HTTP 200 e as três réplicas permaneceram prontas, sem reinícios durante o teste.
+## O problema que mais me ensinou
 
-**Aprendizado:** comprovar que um limite funciona não comprova que ele foi bem dimensionado. E uma falha vista na comunicação pode ter origem no processo que deveria responder.
+Enquanto configurava o isolamento, Operações dev parou de consultar Rastreamento dev. Minha primeira suspeita foi a rede, porque era justamente a configuração em que eu estava trabalhando.
 
-[Leia a investigação](docs/INCIDENTE-MEMORIA-DEV.md).
+A investigação mostrou que as requisições chegavam aos pods, mas os containers morriam por falta de memória. O limite de 70 MiB usado no exercício de contenção era baixo demais para o funcionamento da aplicação.
 
-## Como explorar o repositório
+Ajustei o request para 75 MiB e o limite para 110 MiB. Repetimos as consultas: desenvolvimento voltou a responder, homologação continuou funcionando e o acesso indevido entre os ambientes permaneceu bloqueado. As três réplicas de Rastreamento dev ficaram prontas, sem reinícios durante essa verificação.
 
-- `rastreamento/`: API Flask, integração com PostgreSQL e inicializador idempotente.
-- `operacoes/`: interface web e backend que consulta Rastreamento.
-- `deploy/apps.json` e `deploy/homologacao.json`: implantação inicial, anterior aos exercícios administrativos.
-- `deploy/observado.json`: exportação sanitizada do estado observado na revisão, com imagens e metadados ajustados para portabilidade. Não contém Secrets.
-- `docs/`: contexto, procedimentos e evidências.
+Esse episódio mudou a forma como eu olharia uma falha de comunicação: além da rede, preciso observar o processo que deveria responder, os reinícios e o estado anterior do container.
+
+[O troubleshooting, passo a passo](docs/INCIDENTE-MEMORIA-DEV.md).
+
+## O que está no repositório
+
+- `rastreamento/` e `operacoes/`: aplicações modelo, preparadas com apoio do Codex.
+- `deploy/apps.json` e `deploy/homologacao.json`: implantação inicial das aplicações.
+- `deploy/observado.json`: configurações exportadas do laboratório, sem Secrets e com referências ajustadas para reprodução.
+- `docs/`: procedimentos, decisões e resultados dos testes.
 - `tests/`: testes unitários e smoke integrado.
 
-[Configuração, endpoints e construção das imagens](docs/APLICACOES.md) · [Reprodução](docs/REPRODUCAO.md)
+[Como reproduzir](docs/REPRODUCAO.md) · [Configuração das aplicações](docs/APLICACOES.md)
 
-## Escopo e próximos refinamentos
+## Próximos passos
 
-O snapshot de RBAC observado contém bindings de leitura, mas não comprova a autonomia completa de publicação pelos desenvolvedores nem todos os acessos planejados. O requisito original de homologação isolada também por time exige refinamento da topologia atual. A AdminNetworkPolicy demonstrada bloqueia uma origem e um destino específicos; não representa isolamento geral de desenvolvimento e homologação, nem valida acesso pelas URLs externas.
+A PoC usa dados fictícios e testes funcionais curtos. Para evoluir a solução, eu trabalharia em testes de carga, backup e restauração, alta disponibilidade do banco e automação do onboarding. Também ampliaria os testes de isolamento para outros workloads e caminhos de acesso, além do fluxo interno demonstrado aqui.
 
-As aplicações não têm autenticação de usuário final. Use apenas dados fictícios. O laboratório não demonstra alta disponibilidade do banco, backup/restauração, estabilidade prolongada sob carga ou recuperação após exclusão de PVC. Estes são próximos passos, não capacidades de produção reivindicadas por esta PoC.
+Os manifests de RBAC disponíveis registram os bindings de leitura do laboratório. Para reproduzir a autonomia completa dos desenvolvedores, é necessário completar as permissões conforme a matriz de acesso do ambiente.
 
 ## Testes locais
 
@@ -85,4 +109,4 @@ pip install -r rastreamento/requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-O smoke integrado insere uma ocorrência sintética. Consulte `tests/smoke.py --help` para informar as URLs.
+O smoke integrado insere uma ocorrência sintética. Execute `python tests/smoke.py --help` para informar as URLs.

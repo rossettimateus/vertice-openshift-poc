@@ -1,54 +1,51 @@
-# Quando uma falha HTTP parecia um bloqueio de rede
+# Parecia rede, mas era memória
 
-## Contexto
+## O que aconteceu
 
-Durante os testes de isolamento entre desenvolvimento e homologação, a comunicação
-Operações dev → Rastreamento dev também falhou. Esse fluxo deveria continuar permitido.
-O contexto de alteração de políticas de rede tornou um bloqueio de tráfego uma hipótese inicial.
+Eu estava configurando o bloqueio de Operações dev para Rastreamento homolog quando percebi que a comunicação dentro de desenvolvimento também falhava.
 
-## Sintoma
+Operações dev precisava continuar consultando Rastreamento dev. Como eu tinha acabado de mexer nas políticas de rede, essa foi minha primeira suspeita.
 
-A consulta HTTP retornava `RemoteDisconnected: Remote end closed connection without response`.
-Em testes subsequentes também houve `Connection refused`.
-Esses erros, isoladamente, não identificam a causa.
+A requisição retornava:
 
-## Investigação e evidências — 09/11/2026
+```text
+RemoteDisconnected: Remote end closed connection without response
+```
 
-1. O Service Rastreamento selecionava as três réplicas e encaminhava para TCP/8080.
-2. As consultas partiram do pod real de Operações dev, pelo Service e diretamente
-   pelos IPs das três réplicas de Rastreamento dev.
-3. As conexões foram encerradas sem resposta HTTP; consultas seguintes tiveram conexão recusada.
-4. Os três containers registraram `OOMKilled`, código 137, às 15:48:01 UTC,
-   no momento da reprodução. Os contadores de reinícios aumentaram.
-5. Cada container tinha request de `65Mi` e limit de `70Mi`, valores usados no exercício de contenção.
+Em outras tentativas, apareceu `Connection refused`.
 
-Diagnóstico: o limite de memória era insuficiente para a execução observada;
-as requisições chegavam ao destino, mas os containers eram encerrados por OOM.
-O limite demonstrava contenção, porém não oferecia um dimensionamento adequado para operação normal.
+## Como chegamos à causa
 
-## Resolução e estado da validação
+Na investigação com apoio do Codex, conferimos o Service de Rastreamento. Ele selecionava as três réplicas e encaminhava as conexões para TCP/8080.
 
-O responsável pelo laboratório ajustou o request para `75Mi` e o limit para `110Mi`.
-Na verificação posterior pelo Codex em 09/11/2026:
+Em seguida, as consultas foram feitas a partir do pod de Operações dev, tanto pelo Service quanto pelos IPs das réplicas. As conexões fecharam sem resposta e os containers registraram `OOMKilled`, código 137, no mesmo horário dos testes: 15:48:01 UTC de 09/11/2026.
 
-- Operações dev → Rastreamento dev: cinco consultas consecutivas com HTTP 200.
-- Operações homolog → Rastreamento homolog: três consultas consecutivas com HTTP 200.
-- Operações dev → Rastreamento homolog: timeout, coerente com a regra de bloqueio inspecionada.
-- As três réplicas de Rastreamento dev permaneceram prontas, com zero reinícios antes e depois.
+Os pods estavam com request de `65Mi` e limite de `70Mi`. Eram os valores que eu havia usado no exercício anterior para demonstrar contenção de memória. O controle funcionava, mas o limite estava baixo para a execução normal da aplicação.
 
-A correção passou nessa verificação funcional curta. Não foi realizado teste de carga
-ou observação prolongada para determinar o dimensionamento definitivo.
+## O ajuste
 
-## Aprendizado para o portfólio
+Alterei o request para `75Mi` e o limite para `110Mi`. Depois repetimos os testes:
 
-- Correlacionar a reprodução da falha com os reinícios e horários de término dos containers.
-- Consultar `State`, `Last State`, `Reason` e `Limits` no `oc describe pod`.
-- Usar `oc logs --previous` para consultar a execução anterior; o log pode terminar sem
-  mensagem explicativa quando o processo é encerrado por OOM.
-- Distinguir timeout, conexão recusada e conexão encerrada, tratando-os como pistas.
-- Separar sucesso do teste de contenção de recursos de adequação do dimensionamento.
+- Operações dev → Rastreamento dev: cinco respostas HTTP 200.
+- Operações homolog → Rastreamento homolog: três respostas HTTP 200.
+- Operações dev → Rastreamento homolog: timeout, como esperado.
+- As três réplicas de Rastreamento dev permaneceram prontas e sem reinícios durante a verificação.
 
-Na apresentação pública, contar este episódio como uma descoberta do laboratório,
-com hipóteses e evidências. A correlação decisiva foi identificada com apoio do Codex,
-que consultou o cluster e reproduziu as requisições; não atribuir essa etapa a uma
-investigação independente do autor.
+## O que levo desse teste
+
+Eu não teria começado investigando memória. A pista foi correlacionar a requisição com o aumento dos reinícios, em vez de olhar apenas para a comunicação.
+
+Para uma próxima ocorrência, acompanharia os pods enquanto reproduzo o erro:
+
+```bash
+oc get pods -n project-rastreamento -l app=rastreamento -w
+```
+
+Se os reinícios aumentarem, consultaria o estado anterior e os logs da execução que morreu:
+
+```bash
+oc describe pod NOME_DO_POD -n project-rastreamento
+oc logs NOME_DO_POD -n project-rastreamento --previous
+```
+
+O log atual pode mostrar apenas o processo iniciando de novo. Neste caso, a informação decisiva estava no estado do container: `OOMKilled`.

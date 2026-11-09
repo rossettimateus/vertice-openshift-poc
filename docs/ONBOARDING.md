@@ -1,6 +1,6 @@
 # Entrada de um terceiro time
 
-Procedimento proposto para um novo time de desenvolvimento, por exemplo Integrações. Homologação é um ambiente, não um terceiro time. Esta documentação não registra uma execução completa de onboarding.
+Organizei este procedimento para receber um novo time de desenvolvimento, por exemplo Integrações, usando o provedor de identidade existente. Cada equipe precisa dos seus usuários, grupo, ambientes e permissões.
 
 ## Identidade
 
@@ -15,7 +15,7 @@ Procedimento proposto para um novo time de desenvolvimento, por exemplo Integra�
 
 Defina os projetos de desenvolvimento e homologação do novo time; configure seus grupos e bindings conforme a matriz de acesso desejada. Aplique os padrões de recursos, armazenamento e rede escolhidos. Não copie credenciais de outro ambiente.
 
-O snapshot `deploy/observado.json` mostra o que foi observado na PoC, não um template de onboarding completo. Revise o RBAC antes de reutilizá-lo: o snapshot de leitura não concede autonomia completa de publicação.
+Use `deploy/observado.json` como referência das configurações do laboratório. Complete os bindings do novo time conforme as operações que ele precisa executar; os bindings de leitura não permitem publicar aplicações.
 
 ## Aceite
 
