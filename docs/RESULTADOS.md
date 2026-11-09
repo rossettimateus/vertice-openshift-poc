@@ -50,3 +50,17 @@ O novo pod montou o armazenamento pelo PVC existente. Não excluí o PVC nem o P
 O [roteiro de validação](VALIDACAO.md) inclui publicação de versões com falha controlada e recuperação da aplicação. O [documento de onboarding](ONBOARDING.md) organiza a entrada de usuários e de um terceiro time.
 
 As verificações de HTTP e autenticação foram feitas com apoio do Codex. O teste de persistência foi acompanhado pela interface da aplicação.
+
+## Resumo dos critérios verificados
+
+| Verificação | Evidência registrada |
+|---|---|
+| Diagnóstico de suporte | Permissões consultadas para pods, logs, eventos, alteração e Secrets |
+| Fluxos HTTP no mesmo ambiente | Respostas HTTP 200 em dev e homolog |
+| Fluxo dev → homolog | Timeout com origem e destino selecionados na política |
+| Contenção de memória | Estado OOMKilled e código 137 |
+| Funcionamento após ajuste de memória | Consultas HTTP 200 e ausência de novos reinícios durante o teste |
+| Rotação de senha | Conexões ao banco com senha nova e antiga |
+| Persistência do banco | Ocorrência consultada após substituir o pod PostgreSQL |
+
+Para repetir os testes de comunicação, consulte [DIAGNOSTICO.md](DIAGNOSTICO.md). Para os demais cenários, consulte [VALIDACAO.md](VALIDACAO.md).
