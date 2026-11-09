@@ -22,6 +22,20 @@ Em seguida, as consultas foram feitas a partir do pod de Operações dev, tanto 
 
 Os pods estavam com request de `65Mi` e limite de `70Mi`. Eram os valores que eu havia usado no exercício anterior para demonstrar contenção de memória. O controle funcionava, mas o limite estava baixo para a execução normal da aplicação.
 
+O estado do container foi registrado na saída do `oc describe pod`:
+
+```text
+Last State: Terminated
+  Reason: OOMKilled
+  Exit Code: 137
+Limits:
+  memory: 70Mi
+Requests:
+  memory: 65Mi
+```
+
+[Trecho preservado da saída do terminal](evidencias/oom-killed.txt).
+
 ## Comandos usados na investigação
 
 A consulta partiu do container de Operações dev, que é a origem real do fluxo:
@@ -50,6 +64,10 @@ Alterei o request para `75Mi` e o limite para `110Mi`. Depois repetimos os teste
 - Operações homolog → Rastreamento homolog: três respostas HTTP 200.
 - Operações dev → Rastreamento homolog: timeout, como esperado.
 - As três réplicas de Rastreamento dev permaneceram prontas e sem reinícios durante a verificação.
+
+Neste registro posterior, as três réplicas estavam com zero reinícios e cerca de 58 minutos de execução. O Deployment mostrava request de `75Mi` e limit de `110Mi`:
+
+![Memória ajustada e três réplicas prontas sem reinícios](evidencias/memoria-apos-ajuste.png)
 
 ## O que levo desse teste
 

@@ -1,0 +1,17 @@
+Trecho da saída de `oc describe pod` coletada durante o teste de memória.
+O registro original foi copiado do terminal como texto, não como screenshot.
+
+Name:             rastreamento-649cc4c869-7jdwn
+Namespace:        project-rastreamento
+
+    Last State:     Terminated
+      Reason:       OOMKilled
+      Exit Code:    137
+      Started:      Mon, 09 Nov 2026 11:01:18 -0300
+      Finished:     Mon, 09 Nov 2026 11:02:27 -0300
+    Ready:          True
+    Restart Count:  3
+    Limits:
+      memory:  70Mi
+    Requests:
+      memory:  65Mi

@@ -2,6 +2,12 @@
 
 Executei os testes com os dois ambientes disponíveis no cluster. Abaixo estão os resultados que usei para avaliar a PoC.
 
+## Acesso do suporte
+
+O grupo `g-suporte` estava associado à role `view` em `project-rastreamento`. A consulta de permissões retornou `yes` para pods, logs e eventos, e `no` para alteração de Deployments e leitura de Secrets.
+
+![RoleBinding e verificações de permissão do suporte](evidencias/rbac-suporte.png)
+
 ## Comunicação entre aplicações
 
 | Origem | Destino | Resultado |
@@ -11,6 +17,10 @@ Executei os testes com os dois ambientes disponíveis no cluster. Abaixo estão 
 | Operações dev | Rastreamento homolog | Timeout |
 
 A primeira versão da AdminNetworkPolicy selecionava os pods `app=operacoes` de todos os namespaces. Isso também bloqueou Operações homolog. Corrigi o seletor de origem para `project-developer` e repeti os testes.
+
+A configuração da regra ficou assim:
+
+![AdminNetworkPolicy com origem em project-developer e destino em project-homologacao](evidencias/adminnetworkpolicy.png)
 
 As consultas usaram HTTP pelo DNS dos Services. O ping ajudou em verificações pontuais, mas não substituiu o teste do protocolo usado pela aplicação.
 
