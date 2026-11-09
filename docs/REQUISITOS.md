@@ -32,8 +32,18 @@ O pedido que usei como base para o trabalho foi:
 | Preservar dados após substituir um pod | PostgreSQL monta armazenamento persistente por PVC | Ocorrência consultada após substituição do pod do banco |
 | Receber um terceiro time | Reutilizar o provedor de identidade e documentar usuários, grupos, projetos e permissões | Procedimento de onboarding |
 
-O detalhamento dos testes está em [RESULTADOS.md](RESULTADOS.md). Os manifests exportados incluem os bindings `edit` dos times nos próprios projetos de desenvolvimento e `view` para leitura cruzada. A validação de permissões e os acessos ainda não concedidos em homologação estão registrados nos resultados.
+O detalhamento dos testes está em [RESULTADOS.md](RESULTADOS.md). Os manifests exportados incluem os bindings `edit` dos times nos próprios projetos de desenvolvimento e `view` para leitura cruzada. Os testes dessas permissões estão registrados nos resultados. Nesta entrega, homologação é operada pelo acesso administrativo do laboratório; os grupos de desenvolvimento e suporte não têm acesso ao projeto.
 
 ## Adaptações no laboratório
 
 A rotação de credenciais foi executada em desenvolvimento. Homologação compartilha um namespace entre as duas aplicações, mantendo banco e credenciais separados de desenvolvimento. A regra de rede demonstra um fluxo específico de bloqueio; sua ampliação para todos os workloads e para acessos externos fica como evolução da arquitetura.
+
+## Entrega desta etapa
+
+- Aplicações disponíveis em desenvolvimento e homologação, com bancos e armazenamento separados.
+- RBAC dos times e do suporte configurado e verificado em desenvolvimento.
+- Regra de bloqueio aplicada ao fluxo Operações dev → Rastreamento homolog, preservando a comunicação dentro de cada ambiente.
+- Testes de memória, rotação de credencial e persistência registrados.
+- Procedimentos de recuperação de versão e onboarding disponíveis para operação do laboratório.
+
+A configuração implementada adapta o pedido inicial ao laboratório descrito acima. A entrega dos procedimentos não representa uma evidência adicional de execução de rollback ou de entrada de um novo time. Produção e expansão dos acessos de homologação não fazem parte desta versão.

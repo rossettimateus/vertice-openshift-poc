@@ -6,7 +6,7 @@ Parti de um cluster OpenShift já disponível e de um cenário de cliente fictí
 
 A partir desse pedido, defini a distribuição dos projetos, configurei os acessos e as regras de comunicação e testei os fluxos das aplicações. Usei aplicações modelo para validar o comportamento da plataforma.
 
-## O que o cliente precisava
+## O pedido recebido
 
 Os desenvolvedores dependiam da infraestrutura para publicar aplicações e investigar problemas. Havia acessos excessivos, configurações manuais e preocupação com uma aplicação consumir recursos a ponto de afetar as demais.
 
@@ -56,12 +56,15 @@ Operações envia as consultas e os registros de ocorrências para a API de Rast
 
 Usei o provedor HTPasswd já configurado no ambiente para os usuários. Organizei as permissões com grupos e bindings de RBAC. Para a comunicação entre ambientes, configurei uma AdminNetworkPolicy selecionando a origem e o destino pelos namespaces e labels dos pods.
 
-Em homologação, os aplicativos compartilham um namespace. Para ampliar essa estrutura, eu separaria os ambientes também por time e revisaria a matriz de permissões antes de receber novas equipes.
+O RBAC de desenvolvimento ficou com `edit` para cada grupo no próprio projeto e `view` no projeto do outro time. O suporte recebe leitura de diagnóstico, sem alteração de Deployments nem leitura de Secrets.
 
-## Como testei
+Homologação reúne os dois aplicativos e é operada pelo acesso administrativo do laboratório. Os grupos de desenvolvimento e suporte não receberam acesso a esse projeto nesta entrega. A separação de homologação por time fica para uma ampliação da estrutura.
+
+## Validação da entrega
 
 | Necessidade | Teste realizado | Resultado |
 |---|---|---|
+| Acessos dos desenvolvedores | Consultar pods e logs, verificar criação/alteração de Deployments e leitura de Secrets nos dois projetos | Edição no próprio projeto; leitura no outro, sem alteração nem acesso aos Secrets |
 | Acesso de suporte | Consultar pods, eventos e logs; verificar permissões de alteração e leitura de Secrets | Leitura de diagnóstico permitida; ações verificadas de alteração e leitura de Secrets negadas |
 | Comunicação em desenvolvimento | Consultar Rastreamento a partir de Operações dev | HTTP 200 em cinco consultas consecutivas |
 | Comunicação em homologação | Consultar Rastreamento a partir de Operações homolog | HTTP 200 em três consultas consecutivas |
@@ -96,11 +99,11 @@ Eu estava procurando um problema de rede e não tinha pensado em memória. Acomp
 
 [Como reproduzir](docs/REPRODUCAO.md) · [Configuração das aplicações](docs/APLICACOES.md)
 
-## O que ainda quero melhorar
+## Continuação do projeto
 
-A PoC usa dados fictícios e testes funcionais curtos. Para evoluir a solução, eu trabalharia em testes de carga, backup e restauração, alta disponibilidade do banco e automação do onboarding. Também ampliaria os testes de isolamento para outros workloads e caminhos de acesso, além do fluxo interno demonstrado aqui.
+Esta entrega reúne a estrutura dos ambientes, os controles aplicados e os testes funcionais descritos acima. O laboratório usa dados fictícios; alta disponibilidade do banco, testes de carga e backup/restauração ficaram fora desta etapa.
 
-Os manifests incluem `edit` para cada time no próprio projeto de desenvolvimento e `view` no projeto do outro time. A role `edit` permite acesso aos Secrets do próprio projeto; no projeto do outro time, essa leitura foi negada. Os acessos de homologação precisam de uma definição própria antes de liberar esse ambiente aos times.
+A próxima etapa será GitOps: gerenciar as aplicações pelo Git e comparar as permissões do OpenShift com o RBAC do Argo CD e com as permissões do controlador no cluster.
 
 ## Testes locais
 

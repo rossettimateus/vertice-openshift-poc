@@ -22,7 +22,7 @@ Na revisão final, os grupos já existiam, mas faltavam os bindings para trabalh
 
 A role `edit` concede acesso aos Secrets do próprio projeto. Essa escolha atende ao escopo de desenvolvimento desta configuração; para separar também os Secrets do próprio time, seria necessário revisar o modelo de acesso.
 
-As permissões foram consultadas com `oc auth can-i`, usando os usuários e grupos correspondentes. Nenhuma operação de escrita foi executada para testar os Deployments. Em `project-homologacao`, os três grupos continuam sem as permissões verificadas acima: a liberação desse ambiente fica pendente.
+As permissões foram consultadas com `oc auth can-i`, usando os usuários e grupos correspondentes. Nenhuma operação de escrita foi executada para testar os Deployments. Em `project-homologacao`, os três grupos não têm as permissões verificadas acima. Esse ambiente é operado pelo acesso administrativo do laboratório nesta versão.
 
 [Saída das verificações](evidencias/rbac-verificacao.json).
 
