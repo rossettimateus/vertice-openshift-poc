@@ -1,12 +1,12 @@
 # Cenário recebido e escopo da PoC
 
-## Cliente fictício: Vértice Logística
+## O cenário apresentado
 
 A empresa mantém dois sistemas internos: Rastreamento, responsável pelas consultas de entregas, e Operações, usado pelos funcionários para consultar e registrar ocorrências.
 
-As aplicações rodam em máquinas virtuais. Os desenvolvedores dependem da infraestrutura para publicar versões, configurar acessos e investigar falhas. A empresa decidiu avaliar OpenShift antes de ampliar a adoção.
+No cenário, as aplicações rodam em máquinas virtuais. Os desenvolvedores dependem da infraestrutura para publicar versões, configurar acessos e investigar falhas. A empresa quer avaliar OpenShift antes de ampliar a adoção.
 
-O pedido apresentado para esta PoC foi:
+O pedido que usei como base para o trabalho foi:
 
 > Permitir que os dois times publiquem e investiguem suas aplicações com acessos delimitados, proteger o ambiente contra consumo excessivo de recursos e ter procedimentos claros para recuperar o serviço. A equipe precisa conseguir entender e repetir o processo.
 

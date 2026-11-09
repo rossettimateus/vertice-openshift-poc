@@ -2,17 +2,15 @@
 
 [![Testes das aplicações](https://github.com/rossettimateus/vertice-openshift-poc/actions/workflows/tests.yml/badge.svg)](https://github.com/rossettimateus/vertice-openshift-poc/actions/workflows/tests.yml)
 
-Como organizar uma plataforma para dois times compartilharem um cluster sem perder o controle de acessos, recursos e comunicação?
+Parti de um cluster OpenShift já disponível e de um cenário de cliente fictício: a Vértice Logística precisava organizar dois sistemas, Operações e Rastreamento, em desenvolvimento e homologação.
 
-Recebi um cenário de PoC para a Vértice Logística, uma empresa fictícia com dois sistemas: Operações e Rastreamento. A partir dos requisitos apresentados, desenhei o ambiente, configurei os controles administrativos e testei o comportamento das aplicações no cluster.
-
-As aplicações são modelos para os testes. O foco do projeto está na plataforma.
+A partir desse pedido, defini a distribuição dos projetos, configurei os acessos e as regras de comunicação e testei os fluxos das aplicações. Usei aplicações modelo para validar o comportamento da plataforma.
 
 ## O que o cliente precisava
 
 Os desenvolvedores dependiam da infraestrutura para publicar aplicações e investigar problemas. Havia acessos excessivos, configurações manuais e preocupação com uma aplicação consumir recursos a ponto de afetar as demais.
 
-A proposta precisava contemplar:
+A partir desse cenário, organizei os testes em torno destes pontos:
 
 - Acessos organizados por time e função, com suporte consultando diagnóstico sem alterar as aplicações.
 - Desenvolvimento e homologação com dados e credenciais separados.
@@ -24,9 +22,9 @@ A proposta precisava contemplar:
 
 [Cenário e matriz de requisitos](docs/REQUISITOS.md) · [Arquitetura e implantação](docs/IMPLANTACAO.md) · [Resultados](docs/RESULTADOS.md)
 
-## Como organizei a PoC
+## O ambiente que montei
 
-Separei os aplicativos de desenvolvimento em dois projetos. Para homologação, usei um terceiro projeto com uma cópia dos dois aplicativos e um banco próprio.
+Trabalhei em um cluster com OVN-Kubernetes e armazenamento EBS CSI. Separei os aplicativos de desenvolvimento em dois projetos. Para homologação, usei um terceiro projeto com uma cópia dos dois aplicativos e um banco próprio.
 
 | Projeto | Componentes |
 |---|---|
@@ -56,7 +54,7 @@ flowchart LR
 
 Operações envia as consultas e os registros de ocorrências para a API de Rastreamento. A API faz o acesso ao PostgreSQL; Operações não recebe as credenciais do banco.
 
-Usei o provedor HTPasswd existente para os usuários e grupos para organizar as permissões. Para a comunicação entre ambientes, configurei uma AdminNetworkPolicy selecionando a origem e o destino pelos namespaces e labels dos pods.
+Usei o provedor HTPasswd já configurado no ambiente para os usuários. Organizei as permissões com grupos e bindings de RBAC. Para a comunicação entre ambientes, configurei uma AdminNetworkPolicy selecionando a origem e o destino pelos namespaces e labels dos pods.
 
 Em homologação, os aplicativos compartilham um namespace. Para ampliar essa estrutura, eu separaria os ambientes também por time e revisaria a matriz de permissões antes de receber novas equipes.
 
@@ -84,9 +82,9 @@ A investigação mostrou que as requisições chegavam aos pods, mas os containe
 
 Ajustei o request para 75 MiB e o limite para 110 MiB. Repetimos as consultas: desenvolvimento voltou a responder, homologação continuou funcionando e o acesso indevido entre os ambientes permaneceu bloqueado. As três réplicas de Rastreamento dev ficaram prontas, sem reinícios durante essa verificação.
 
-Esse episódio mudou a forma como eu olharia uma falha de comunicação: além da rede, preciso observar o processo que deveria responder, os reinícios e o estado anterior do container.
+Eu estava procurando um problema de rede e não tinha pensado em memória. Acompanhar os reinícios junto da requisição foi o que ajudou a entender a falha.
 
-[O troubleshooting, passo a passo](docs/INCIDENTE-MEMORIA-DEV.md) · [Comandos de diagnóstico](docs/DIAGNOSTICO.md).
+[Relato e comandos usados na investigação](docs/INCIDENTE-MEMORIA-DEV.md).
 
 ## O que está no repositório
 
@@ -98,7 +96,7 @@ Esse episódio mudou a forma como eu olharia uma falha de comunicação: além d
 
 [Como reproduzir](docs/REPRODUCAO.md) · [Configuração das aplicações](docs/APLICACOES.md)
 
-## Próximos passos
+## O que ainda quero melhorar
 
 A PoC usa dados fictícios e testes funcionais curtos. Para evoluir a solução, eu trabalharia em testes de carga, backup e restauração, alta disponibilidade do banco e automação do onboarding. Também ampliaria os testes de isolamento para outros workloads e caminhos de acesso, além do fluxo interno demonstrado aqui.
 

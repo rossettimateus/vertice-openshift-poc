@@ -22,6 +22,26 @@ Em seguida, as consultas foram feitas a partir do pod de Operações dev, tanto 
 
 Os pods estavam com request de `65Mi` e limite de `70Mi`. Eram os valores que eu havia usado no exercício anterior para demonstrar contenção de memória. O controle funcionava, mas o limite estava baixo para a execução normal da aplicação.
 
+## Comandos usados na investigação
+
+A consulta partiu do container de Operações dev, que é a origem real do fluxo:
+
+```bash
+oc exec -n project-developer deployment/operacoes -- \
+  python -c 'from urllib.request import urlopen; print(urlopen("http://rastreamento.project-rastreamento.svc:8080/entregas", timeout=5).status)'
+```
+
+Para conferir para onde o Service encaminhava o tráfego e revisar a regra de bloqueio:
+
+```bash
+oc get service rastreamento -n project-rastreamento
+oc get endpointslice -n project-rastreamento \
+  -l kubernetes.io/service-name=rastreamento
+oc get adminnetworkpolicy op-dev-ras-homo-deny -o yaml
+```
+
+O ping não respondia à pergunta principal: a API conseguia atender uma consulta? Por isso a verificação passou a usar HTTP. O erro apareceu mesmo acessando diretamente as réplicas, sem depender do Service.
+
 ## O ajuste
 
 Alterei o request para `75Mi` e o limite para `110Mi`. Depois repetimos os testes:

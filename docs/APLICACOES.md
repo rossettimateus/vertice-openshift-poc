@@ -2,7 +2,7 @@
 
 Duas aplicações demonstrativas com dados sintéticos. Elas fornecem os fluxos de consulta e gravação usados para validar a plataforma.
 Os fontes das aplicações estão separados das configurações administrativas do laboratório.
-A implantação inicial solicitada está registrada em `../deploy/apps.json` e `IMPLANTACAO.md`.
+A implantação inicial está registrada em `../deploy/apps.json` e `IMPLANTACAO.md`.
 
 ## Comece aqui
 
