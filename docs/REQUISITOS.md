@@ -32,7 +32,7 @@ O pedido que usei como base para o trabalho foi:
 | Preservar dados após substituir um pod | PostgreSQL monta armazenamento persistente por PVC | Ocorrência consultada após substituição do pod do banco |
 | Receber um terceiro time | Reutilizar o provedor de identidade e documentar usuários, grupos, projetos e permissões | Procedimento de onboarding |
 
-O detalhamento dos testes está em [RESULTADOS.md](RESULTADOS.md). Os manifests exportados registram as configurações disponíveis, incluindo os bindings de leitura. Permissões adicionais para autonomia completa de publicação devem seguir a matriz de acesso do ambiente.
+O detalhamento dos testes está em [RESULTADOS.md](RESULTADOS.md). Os manifests exportados incluem os bindings `edit` dos times nos próprios projetos de desenvolvimento e `view` para leitura cruzada. A validação de permissões e os acessos ainda não concedidos em homologação estão registrados nos resultados.
 
 ## Adaptações no laboratório
 

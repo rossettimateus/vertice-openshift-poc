@@ -1,0 +1,83 @@
+[
+  {
+    "grupo": "g-developer",
+    "projeto": "project-developer",
+    "list pods": "yes",
+    "get pods/log": "yes",
+    "create deployments.apps": "yes",
+    "patch deployments.apps": "yes",
+    "get secrets": "yes"
+  },
+  {
+    "grupo": "g-developer",
+    "projeto": "project-rastreamento",
+    "list pods": "yes",
+    "get pods/log": "yes",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  },
+  {
+    "grupo": "g-developer",
+    "projeto": "project-homologacao",
+    "list pods": "no",
+    "get pods/log": "no",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  },
+  {
+    "grupo": "g-rastreamento",
+    "projeto": "project-developer",
+    "list pods": "yes",
+    "get pods/log": "yes",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  },
+  {
+    "grupo": "g-rastreamento",
+    "projeto": "project-rastreamento",
+    "list pods": "yes",
+    "get pods/log": "yes",
+    "create deployments.apps": "yes",
+    "patch deployments.apps": "yes",
+    "get secrets": "yes"
+  },
+  {
+    "grupo": "g-rastreamento",
+    "projeto": "project-homologacao",
+    "list pods": "no",
+    "get pods/log": "no",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  },
+  {
+    "grupo": "g-suporte",
+    "projeto": "project-developer",
+    "list pods": "yes",
+    "get pods/log": "yes",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  },
+  {
+    "grupo": "g-suporte",
+    "projeto": "project-rastreamento",
+    "list pods": "yes",
+    "get pods/log": "yes",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  },
+  {
+    "grupo": "g-suporte",
+    "projeto": "project-homologacao",
+    "list pods": "no",
+    "get pods/log": "no",
+    "create deployments.apps": "no",
+    "patch deployments.apps": "no",
+    "get secrets": "no"
+  }
+]

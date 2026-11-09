@@ -8,6 +8,24 @@ O grupo `g-suporte` estava associado à role `view` em `project-rastreamento`. A
 
 ![RoleBinding e verificações de permissão do suporte](evidencias/rbac-suporte.png)
 
+## Acessos dos times em desenvolvimento
+
+Na revisão final, os grupos já existiam, mas faltavam os bindings para trabalhar nas próprias aplicações. O RBAC foi complementado com `edit` no próprio projeto e `view` no projeto do outro time.
+
+| Grupo | Projeto | Pods e logs | Criar/alterar Deployments | Ler Secrets |
+|---|---|---|---|---|
+| `g-developer` | `project-developer` | Sim | Sim | Sim |
+| `g-developer` | `project-rastreamento` | Sim | Não | Não |
+| `g-rastreamento` | `project-rastreamento` | Sim | Sim | Sim |
+| `g-rastreamento` | `project-developer` | Sim | Não | Não |
+| `g-suporte` | Os dois projetos de desenvolvimento | Sim | Não | Não |
+
+A role `edit` concede acesso aos Secrets do próprio projeto. Essa escolha atende ao escopo de desenvolvimento desta configuração; para separar também os Secrets do próprio time, seria necessário revisar o modelo de acesso.
+
+As permissões foram consultadas com `oc auth can-i`, usando os usuários e grupos correspondentes. Nenhuma operação de escrita foi executada para testar os Deployments. Em `project-homologacao`, os três grupos continuam sem as permissões verificadas acima: a liberação desse ambiente fica pendente.
+
+[Saída das verificações](evidencias/rbac-verificacao.json).
+
 ## Comunicação entre aplicações
 
 | Origem | Destino | Resultado |

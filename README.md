@@ -100,7 +100,7 @@ Eu estava procurando um problema de rede e não tinha pensado em memória. Acomp
 
 A PoC usa dados fictícios e testes funcionais curtos. Para evoluir a solução, eu trabalharia em testes de carga, backup e restauração, alta disponibilidade do banco e automação do onboarding. Também ampliaria os testes de isolamento para outros workloads e caminhos de acesso, além do fluxo interno demonstrado aqui.
 
-Os manifests de RBAC disponíveis registram os bindings de leitura do laboratório. Para reproduzir a autonomia completa dos desenvolvedores, é necessário completar as permissões conforme a matriz de acesso do ambiente.
+Os manifests incluem `edit` para cada time no próprio projeto de desenvolvimento e `view` no projeto do outro time. A role `edit` permite acesso aos Secrets do próprio projeto; no projeto do outro time, essa leitura foi negada. Os acessos de homologação precisam de uma definição própria antes de liberar esse ambiente aos times.
 
 ## Testes locais
 

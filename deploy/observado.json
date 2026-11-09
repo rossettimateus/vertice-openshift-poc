@@ -113,46 +113,6 @@
       }
     },
     {
-      "apiVersion": "rbac.authorization.k8s.io/v1",
-      "kind": "RoleBinding",
-      "metadata": {
-        "name": "view",
-        "namespace": "project-developer"
-      },
-      "roleRef": {
-        "apiGroup": "rbac.authorization.k8s.io",
-        "kind": "ClusterRole",
-        "name": "view"
-      },
-      "subjects": [
-        {
-          "apiGroup": "rbac.authorization.k8s.io",
-          "kind": "Group",
-          "name": "g-rastreamento"
-        }
-      ]
-    },
-    {
-      "apiVersion": "rbac.authorization.k8s.io/v1",
-      "kind": "RoleBinding",
-      "metadata": {
-        "name": "view-0",
-        "namespace": "project-developer"
-      },
-      "roleRef": {
-        "apiGroup": "rbac.authorization.k8s.io",
-        "kind": "ClusterRole",
-        "name": "view"
-      },
-      "subjects": [
-        {
-          "apiGroup": "rbac.authorization.k8s.io",
-          "kind": "Group",
-          "name": "g-suporte"
-        }
-      ]
-    },
-    {
       "apiVersion": "build.openshift.io/v1",
       "kind": "BuildConfig",
       "metadata": {
@@ -449,26 +409,6 @@
         },
         "wildcardPolicy": "None"
       }
-    },
-    {
-      "apiVersion": "rbac.authorization.k8s.io/v1",
-      "kind": "RoleBinding",
-      "metadata": {
-        "name": "view",
-        "namespace": "project-rastreamento"
-      },
-      "roleRef": {
-        "apiGroup": "rbac.authorization.k8s.io",
-        "kind": "ClusterRole",
-        "name": "view"
-      },
-      "subjects": [
-        {
-          "apiGroup": "rbac.authorization.k8s.io",
-          "kind": "Group",
-          "name": "g-suporte"
-        }
-      ]
     },
     {
       "apiVersion": "build.openshift.io/v1",
@@ -1002,6 +942,126 @@
           }
         }
       }
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "developer-edit",
+        "namespace": "project-developer"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "edit"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "g-developer"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "view",
+        "namespace": "project-developer"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "view"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "g-rastreamento"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "view-0",
+        "namespace": "project-developer"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "view"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "g-suporte"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "developer-view-rastreamento",
+        "namespace": "project-rastreamento"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "view"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "g-developer"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "rastreamento-edit",
+        "namespace": "project-rastreamento"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "edit"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "g-rastreamento"
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "view",
+        "namespace": "project-rastreamento"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "view"
+      },
+      "subjects": [
+        {
+          "apiGroup": "rbac.authorization.k8s.io",
+          "kind": "Group",
+          "name": "g-suporte"
+        }
+      ]
     }
   ]
 }

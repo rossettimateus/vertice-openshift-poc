@@ -15,7 +15,7 @@ Organizei este procedimento para receber um novo time de desenvolvimento, por ex
 
 Defina os projetos de desenvolvimento e homologação do novo time; configure seus grupos e bindings conforme a matriz de acesso desejada. Aplique os padrões de recursos, armazenamento e rede escolhidos. Não copie credenciais de outro ambiente.
 
-Use `deploy/observado.json` como referência das configurações do laboratório. Complete os bindings do novo time conforme as operações que ele precisa executar; os bindings de leitura não permitem publicar aplicações.
+Use `deploy/observado.json` como referência das configurações do laboratório. O padrão atual usa `edit` no projeto de desenvolvimento do próprio time e `view` para leitura cruzada. Revise as permissões antes de reutilizá-lo: `edit` inclui acesso aos Secrets do próprio projeto. Os grupos ainda não receberam acessos em homologação.
 
 ## Aceite
 
