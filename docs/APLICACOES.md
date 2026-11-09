@@ -1,6 +1,6 @@
 # Vértice Logística — aplicações para laboratório OpenShift
 
-Duas aplicações demonstrativas com dados sintéticos. Você configura integralmente o OpenShift.
+Duas aplicações demonstrativas com dados sintéticos. Elas fornecem os fluxos de consulta e gravação usados para validar a plataforma.
 Os fontes das aplicações estão separados das configurações administrativas do laboratório.
 A implantação inicial solicitada está registrada em `../deploy/apps.json` e `IMPLANTACAO.md`.
 
@@ -24,7 +24,7 @@ credenciais da API. A API não cria nem migra tabelas ao iniciar.
 |---|---|---|
 | rastreamento | 8080/TCP HTTP | Consulta entregas e grava ocorrências no PostgreSQL |
 | operacoes | 8080/TCP HTTP | Página web; backend chama Rastreamento |
-| PostgreSQL (fornecido por você) | 5432/TCP por padrão | Persistência de entregas e ocorrências |
+| PostgreSQL | 5432/TCP por padrão | Persistência de entregas e ocorrências |
 
 Fluxo: navegador → Operações → Rastreamento → PostgreSQL.
 A API também pode ser consultada diretamente pela URL externa que você criar.

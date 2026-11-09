@@ -2,7 +2,7 @@
 
 Como organizar uma plataforma para dois times compartilharem um cluster sem perder o controle de acessos, recursos e comunicação?
 
-Usei essa pergunta como ponto de partida para uma PoC de OpenShift. Criei o cenário da Vértice Logística, uma empresa fictícia com dois sistemas: Operações e Rastreamento. Meu trabalho foi desenhar o ambiente, configurar os controles administrativos e testar se a solução atendia às necessidades do cliente.
+Recebi um cenário de PoC para a Vértice Logística, uma empresa fictícia com dois sistemas: Operações e Rastreamento. A partir dos requisitos apresentados, desenhei o ambiente, configurei os controles administrativos e testei o comportamento das aplicações no cluster.
 
 As aplicações são modelos para os testes. O foco do projeto está na plataforma.
 
@@ -19,6 +19,8 @@ A proposta precisava contemplar:
 - Controle de memória e recuperação após falhas.
 - Troca de credenciais e preservação de dados quando o pod do banco fosse substituído.
 - Um procedimento para receber novos usuários e times.
+
+[Cenário e matriz de requisitos](docs/REQUISITOS.md) · [Arquitetura e implantação](docs/IMPLANTACAO.md) · [Resultados](docs/RESULTADOS.md)
 
 ## Como organizei a PoC
 
@@ -70,7 +72,7 @@ Em homologação, os aplicativos compartilham um namespace. Para ampliar essa es
 
 A troca de credenciais foi feita em desenvolvimento. Na parte de recuperação de versão, as aplicações incluem imagens com falhas controladas de readiness e de negócio. Deixei o roteiro de execução e o procedimento de entrada de um novo time na documentação.
 
-[Testes e resultados](docs/PROGRESSO-POC.md) · [Roteiro do laboratório](docs/VALIDACAO.md) · [Entrada de novos times](docs/ONBOARDING.md)
+[Testes e resultados](docs/RESULTADOS.md) · [Roteiro do laboratório](docs/VALIDACAO.md) · [Entrada de novos times](docs/ONBOARDING.md)
 
 ## O problema que mais me ensinou
 
@@ -89,7 +91,7 @@ Esse episódio mudou a forma como eu olharia uma falha de comunicação: além d
 - `rastreamento/` e `operacoes/`: aplicações modelo, preparadas com apoio do Codex.
 - `deploy/apps.json` e `deploy/homologacao.json`: implantação inicial das aplicações.
 - `deploy/observado.json`: configurações exportadas do laboratório, sem Secrets e com referências ajustadas para reprodução.
-- `docs/`: procedimentos, decisões e resultados dos testes.
+- `docs/`: requisitos do cliente, decisões de arquitetura, implantação e resultados dos testes.
 - `tests/`: testes unitários e smoke integrado.
 
 [Como reproduzir](docs/REPRODUCAO.md) · [Configuração das aplicações](docs/APLICACOES.md)

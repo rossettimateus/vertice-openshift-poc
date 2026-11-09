@@ -10,7 +10,7 @@
 - Após reiniciar o banco com seu armazenamento persistente, confirme novamente.
 - Confira `/version` e o ambiente exibido na página.
 
-## Comunicação e operação — implementadas por você
+## Comunicação e operação
 
 - API acessível pela URL externa; banco sem exposição externa.
 - Operações consulta Rastreamento do próprio ambiente.
@@ -41,8 +41,6 @@ Rollback de aplicação não equivale a restauração de banco. Estes exercício
 Entregue a outro operador as imagens/digests, variáveis necessárias, ordem de inicialização,
 procedimento de publicação/recuperação e resultados esperados. Peça que repita sem sua intervenção.
 
-## Validação realizada na preparação do pacote
+## Resultados da execução
 
-Testes unitários de contrato, validação de entradas, modos de falha e proxy HTTP executados com mocks.
-Não houve execução de containers nem PostgreSQL real no ambiente de preparação.
-A validação integrada, de persistência e de UID/SCC deve ser executada no seu ambiente com este roteiro.
+Os resultados obtidos na PoC estão em [RESULTADOS.md](RESULTADOS.md).
