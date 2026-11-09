@@ -65,7 +65,7 @@ O principal cuidado foi entender que atualizar o Secret não altera a senha dent
 
 Registrei uma ocorrência pela interface de Operações, excluí somente o pod PostgreSQL de desenvolvimento e aguardei o substituto ficar disponível. Depois consultei a entrega novamente: a ocorrência continuava lá.
 
-O novo pod montou o armazenamento pelo PVC existente. Não excluí o PVC nem o PV. O exercício demonstrou persistência após substituir o pod do banco; backup e restauração são uma próxima etapa.
+O novo pod montou o armazenamento pelo PVC existente. Não excluí o PVC nem o PV. O exercício demonstrou persistência após substituir o pod do banco; backup e restauração ficaram fora do escopo.
 
 ## Procedimentos do laboratório
 

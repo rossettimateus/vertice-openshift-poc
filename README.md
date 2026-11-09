@@ -99,11 +99,10 @@ Eu estava procurando um problema de rede e não tinha pensado em memória. Acomp
 
 [Como reproduzir](docs/REPRODUCAO.md) · [Configuração das aplicações](docs/APLICACOES.md)
 
-## Continuação do projeto
+## Escopo da entrega
 
 Esta entrega reúne a estrutura dos ambientes, os controles aplicados e os testes funcionais descritos acima. O laboratório usa dados fictícios; alta disponibilidade do banco, testes de carga e backup/restauração ficaram fora desta etapa.
 
-A próxima etapa será GitOps: gerenciar as aplicações pelo Git e comparar as permissões do OpenShift com o RBAC do Argo CD e com as permissões do controlador no cluster.
 
 ## Testes locais
 
